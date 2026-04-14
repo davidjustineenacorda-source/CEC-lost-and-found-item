@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Report</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background-image: url(back\ of\ report.jpg);
+background-size: cover;
+color:white;
+}
+
+/* TOP BAR */
+.topbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:10px;
+background:#111827;
+}
+
+.box{
+max-width:500px;
+margin:auto;
+padding:20px;
+}
+
+input,textarea,select{
+width:100%;
+padding:10px;
+margin:8px 0;
+border-radius:8px;
+border:none;
+}
+
+button{
+width:100%;
+padding:10px;
+margin-top:10px;
+background:#22c55e;
+border:none;
+color:white;
+border-radius:8px;
+cursor:pointer;
+}
+
+.backlogin{
+background:#3b82f6;
+padding:8px 12px;
+border:none;
+border-radius:8px;
+color:white;
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+<button class="backlogin" onclick="backLogin()">⬅ Back to Login</button>
+<h3 style="margin:0;">Report Page</h3>
+</div>
+
+<div class="box">
+<h2>Lost / Found Report</h2>
+
+<select id="type">
+<option>Lost</option>
+<option>Found</option>
+</select>
+
+<input id="item" placeholder="Item Name">
+<textarea id="desc" placeholder="Description"></textarea>
+<input id="link" placeholder="Contact Link (optional)">
+
+<button onclick="post()">Post</button>
+<button onclick="goFeed()" style="background:#3b82f6;">Go Feed</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import {
+getFirestore, collection, addDoc
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyCi89Qohu1fWO0MPYglQzu8x928kdC0pHk",
+authDomain: "cec-lost-and-found.firebaseapp.com",
+projectId: "cec-lost-and-found",
+storageBucket: "cec-lost-and-found.firebasestorage.app",
+messagingSenderId: "85439216661",
+appId: "1:85439216661:web:9c4192b4155097c5a1a21c",
+measurementId: "G-PNB9M8H6LC"
+};
+
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+
+let last=0;
+
+window.post=async function(){
+let now=Date.now();
+if(now-last<15000){
+alert("Wait 15 seconds before posting again");
+return;
+}
+
+await addDoc(collection(db,"reports"),{
+type:document.getElementById("type").value,
+item:document.getElementById("item").value,
+desc:document.getElementById("desc").value,
+link:document.getElementById("link").value,
+name:localStorage.getItem("studentName"),
+id:localStorage.getItem("studentId"),
+time:Date.now()
+});
+
+last=now;
+alert("Posted!");
+}
+
+window.goFeed=function(){
+window.location.href="./contact.html";
+}
+</script>
+
+<script>
+/* BACK TO LOGIN FIX */
+function backLogin(){
+localStorage.removeItem("studentName");
+localStorage.removeItem("studentId");
+localStorage.removeItem("admin");
+
+window.location.href="./login.html";
+}
+</script>
+
+</body>
+</html>

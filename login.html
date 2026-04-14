@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Login</title>
+<style>
+body{
+margin:0;
+font-family:Arial;
+ background-image: url(image\ for\ website.jpg); /* Local path or web URL */
+  background-size: cover;  
+color:white;
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
+
+.box{
+background:#1f2937;
+padding:20px;
+border-radius:12px;
+width:300px;
+}
+
+input{
+width:100%;
+padding:10px;
+margin:8px 0;
+}
+
+button{
+width:100%;
+padding:10px;
+background:#3b82f6;
+border:none;
+color:white;
+border-radius:8px;
+margin-top:5px;
+}
+
+small{color:red;}
+
+.admin{
+background:red;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+<h2>Login</h2>
+
+<!-- STUDENT LOGIN -->
+<input id="name" placeholder="STUDENT NAME">
+<small id="e1"></small>
+
+<input id="id" placeholder="ID NUMBER">
+<small id="e2"></small>
+
+<button onclick="login()">Student Login</button>
+
+<hr>
+
+<!-- ADMIN LOGIN -->
+<input id="adminpass" type="password" placeholder="ADMIN PASSWORD">
+<button class="admin" onclick="adminLogin()">Admin Login</button>
+
+</div>
+
+<script>
+/* STUDENT LOGIN */
+function login(){
+let name=document.getElementById("name").value.trim();
+let id=document.getElementById("id").value.trim();
+
+document.getElementById("e1").innerText="";
+document.getElementById("e2").innerText="";
+
+if(/\d/.test(name)){
+document.getElementById("e1").innerText="No numbers allowed";
+return;
+}
+
+if(!/^\d+$/.test(id)){
+document.getElementById("e2").innerText="Numbers only";
+return;
+}
+
+localStorage.setItem("studentName",name);
+localStorage.setItem("studentId",id);
+localStorage.setItem("admin","false");
+
+window.location.href="report.html";
+}
+
+/* ADMIN LOGIN */
+function adminLogin(){
+let pass=document.getElementById("adminpass").value;
+
+if(pass==="admin123"){
+localStorage.setItem("admin","true");
+window.location.href="contact.html";
+}else{
+alert("Wrong admin password");
+}
+}
+</script>
+
+</body>
+</html>

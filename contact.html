@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Lost & Found Feed</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+margin:0;
+font-family:Arial;
+background-image: url(for\ contact.png);
+background-size: cover;
+color:white;
+}
+
+.header{
+background:#111827;
+padding:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+position:sticky;
+top:0;
+z-index:10;
+}
+
+.header h2{
+margin:0;
+font-size:18px;
+}
+
+.left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.search{
+width:250px;
+padding:8px;
+border-radius:20px;
+border:none;
+outline:none;
+}
+
+.backBtn{
+background:#3b82f6;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:8px;
+cursor:pointer;
+}
+
+.container{
+max-width:700px;
+margin:auto;
+padding:10px;
+}
+
+.card{
+background:#1e293b;
+padding:15px;
+margin:10px 0;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,0.3);
+cursor:pointer;
+}
+
+.card:hover{
+transform:scale(1.01);
+background:#243447;
+}
+
+.title{
+font-weight:bold;
+font-size:16px;
+color:#38bdf8;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+}
+
+.modal-content{
+background:#111827;
+margin:10% auto;
+padding:20px;
+width:90%;
+max-width:400px;
+border-radius:12px;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+margin-top:10px;
+width:100%;
+}
+
+.link{
+color:#38bdf8;
+word-break:break-all;
+}
+
+.deleteBtn{
+background:red;
+color:white;
+display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+<h2>📦 Lost & Found</h2>
+
+<div class="left">
+<button class="backBtn" onclick="goBack()">⬅ Back</button>
+<input class="search" placeholder="Search items..." onkeyup="searchFeed(this.value)">
+</div>
+</div>
+
+<div class="container" id="feed"></div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+<div class="modal-content">
+<h3 id="t"></h3>
+<p id="d"></p>
+<p id="u"></p>
+<a id="l" class="link" target="_blank"></a>
+
+<button onclick="closeModal()" style="background:#3b82f6;color:white;">
+Close
+</button>
+
+<button id="deleteBtn" class="deleteBtn" onclick="deletePost()">
+Delete Post
+</button>
+
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+import {
+getFirestore,
+collection,
+onSnapshot,
+query,
+orderBy,
+deleteDoc,
+doc
+} from "https://www.gstatic.com/firebasejs/12.12.0/firebase-firestore.js";
+
+const firebaseConfig = {
+apiKey: "AIzaSyCi89Qohu1fWO0MPYglQzu8x928kdC0pHk",
+authDomain: "cec-lost-and-found.firebaseapp.com",
+projectId: "cec-lost-and-found"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const isAdmin = localStorage.getItem("admin") === "true";
+
+let current = null;
+
+const q = query(collection(db,"reports"), orderBy("time","desc"));
+
+onSnapshot(q,(snap)=>{
+let feed = document.getElementById("feed");
+feed.innerHTML="";
+
+snap.forEach(docSnap=>{
+let data = docSnap.data();
+data.id = docSnap.id; // IMPORTANT
+
+let div = document.createElement("div");
+div.className="card";
+
+div.innerHTML=`
+<div class="title">${data.type}: ${data.item}</div>
+<p>${data.desc.substring(0,60)}...</p>
+`;
+
+div.onclick=()=>open(data);
+
+feed.appendChild(div);
+});
+});
+
+function open(data){
+current = data;
+
+document.getElementById("t").innerText = data.item;
+document.getElementById("d").innerText = data.desc;
+document.getElementById("u").innerText = "Posted by: " + data.name;
+
+let link = document.getElementById("l");
+link.href = data.link || "#";
+link.innerText = data.link ? "Open Contact Link" : "";
+
+document.getElementById("modal").style.display = "block";
+
+// show delete only for admin
+document.getElementById("deleteBtn").style.display =
+isAdmin ? "block" : "none";
+}
+
+window.closeModal = function(){
+document.getElementById("modal").style.display = "none";
+}
+
+window.deletePost = async function(){
+if(!current || !isAdmin) return;
+
+await deleteDoc(doc(db,"reports",current.id));
+
+alert("Post deleted!");
+closeModal();
+}
+
+window.searchFeed = function(value){
+let cards = document.querySelectorAll(".card");
+
+cards.forEach(card=>{
+card.style.display =
+card.innerText.toLowerCase().includes(value.toLowerCase())
+? "block"
+: "none";
+});
+}
+
+window.goBack = function(){
+window.location.href = "report.html";
+}
+
+</script>
+
+</body>
+</html>
